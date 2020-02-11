@@ -271,6 +271,41 @@ public class QueryDslBasicTest {
         assertEquals("teamB", teamB.get(QTeam.team.name));
         assertEquals(15, teamA.get(QMember.member.age.avg()));
         assertEquals(35, teamB.get(QMember.member.age.avg()));
+    }
 
+    /**
+     * 팀A에 소속된 모든 회원 조회.
+     */
+    @Test
+    void join() throws Exception {
+        List<Member> result = queryFactory
+                .selectFrom(QMember.member)
+                .join(QMember.member.team, QTeam.team)
+                .where(QTeam.team.name.eq("teamA"))
+                .fetch();
+
+        assertEquals("member1", result.get(0).getUsername());
+        assertEquals("member2", result.get(1).getUsername());
+    }
+
+
+    /**
+     * 세타 조인
+     * 회원의 이름이 팀 이름과 같은 회원 조회 (연관관계 없는 테이블끼리 조회)
+     */
+    @Test
+    void theta_join() throws Exception {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+
+        List<Member> result = queryFactory
+                .select(QMember.member)
+                .from(QMember.member, QTeam.team)
+                .where(QMember.member.username.eq(QTeam.team.name))
+                .fetch();
+
+        assertEquals("teamA", result.get(0).getUsername());
+        assertEquals("teamB", result.get(1).getUsername());
     }
 }
