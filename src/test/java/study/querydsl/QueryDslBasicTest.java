@@ -12,6 +12,8 @@ import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -70,8 +72,8 @@ public class QueryDslBasicTest {
                 .fetchOne();
 
         //then
-        assertEquals("member1", findMember.getUsername() );
-     }
+        assertEquals("member1", findMember.getUsername());
+    }
 
     @Test
     void startQueryDSL1() throws Exception {
@@ -87,7 +89,7 @@ public class QueryDslBasicTest {
                 .fetchOne();
 
         //then
-        assertEquals("member1", findMember.getUsername() );
+        assertEquals("member1", findMember.getUsername());
     }
 
     @Test
@@ -101,7 +103,7 @@ public class QueryDslBasicTest {
                 .fetchOne();
 
         //then
-        assertEquals("member2", findMember.getUsername() );
+        assertEquals("member2", findMember.getUsername());
     }
 
     @Test
@@ -114,6 +116,30 @@ public class QueryDslBasicTest {
                 .fetchOne();
 
         //then
-        assertEquals("member2", findMember.getUsername() );
+        assertEquals("member2", findMember.getUsername());
+    }
+
+    @Test
+    void search() throws Exception {
+        List<Member> findMembers = queryFactory
+                .selectFrom(QMember.member)
+                .where(QMember.member.username.startsWith("member")
+                        .and(QMember.member.age.between(11, 39)))
+                .fetch();
+
+        assertEquals(2, findMembers.size());
+    }
+
+    @Test
+    void search_and_param() throws Exception {
+        List<Member> findMembers = queryFactory
+                .selectFrom(QMember.member)
+                .where(
+                        QMember.member.username.startsWith("member"),
+                        QMember.member.age.between(11, 39)
+                )
+                .fetch();
+
+        assertEquals(2, findMembers.size());
     }
 }
