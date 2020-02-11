@@ -199,6 +199,33 @@ public class QueryDslBasicTest {
         assertEquals("member6", member6.getUsername());
         assertEquals("member7", member7.getUsername());
         assertNull(memberNull.getUsername());
+    }
+
+    @Test
+    void paging1() throws Exception {
+        List<Member> fetch = queryFactory
+                .selectFrom(QMember.member)
+                .orderBy(QMember.member.username.desc())
+                .offset(1)
+                .limit(2)
+                .fetch();
+
+        assertEquals(2, fetch.size());
+    }
+
+    @Test
+    void paging2() throws Exception {
+        QueryResults<Member> queryResults = queryFactory
+                .selectFrom(QMember.member)
+                .orderBy(QMember.member.username.desc())
+                .offset(1)
+                .limit(2)
+                .fetchResults();
+
+        assertEquals(4, queryResults.getTotal());
+        assertEquals(2, queryResults.getResults().size());
+        assertEquals(1, queryResults.getOffset());
+        assertEquals(2, queryResults.getLimit());
 
     }
 }
