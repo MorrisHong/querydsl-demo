@@ -1,5 +1,7 @@
 package study.querydsl;
 
+import com.querydsl.core.NonUniqueResultException;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -141,5 +144,29 @@ public class QueryDslBasicTest {
                 .fetch();
 
         assertEquals(2, findMembers.size());
+    }
+
+    @Test
+    void resultFetch() {
+        List<Member> fetch = queryFactory
+                .selectFrom(QMember.member)
+                .fetch();
+
+        assertThrows(NonUniqueResultException.class, () -> {
+            Member fetchOne = queryFactory
+                    .selectFrom(QMember.member)
+                    .fetchOne();
+        });
+
+        Member fetchFirst = queryFactory
+                .selectFrom(QMember.member)
+                .fetchFirst();
+
+        QueryResults<Member> results = queryFactory
+                .selectFrom(QMember.member)
+                .fetchResults();
+        long total = results.getTotal();
+        List<Member> content = results.getResults();
+
     }
 }
