@@ -89,4 +89,31 @@ public class QueryDslBasicTest {
         //then
         assertEquals("member1", findMember.getUsername() );
     }
+
+    @Test
+    void startQueryDSL2() throws Exception {
+        QMember m = QMember.member;
+        //when
+        Member findMember = this.queryFactory
+                .select(m)
+                .from(m)
+                .where(m.username.eq("member2"))
+                .fetchOne();
+
+        //then
+        assertEquals("member2", findMember.getUsername() );
+    }
+
+    @Test
+    void startQueryDSL3() throws Exception {
+        //when
+        Member findMember = this.queryFactory
+                .select(QMember.member)
+                .from(QMember.member)
+                .where(QMember.member.username.eq("member2"))
+                .fetchOne();
+
+        //then
+        assertEquals("member2", findMember.getUsername() );
+    }
 }
