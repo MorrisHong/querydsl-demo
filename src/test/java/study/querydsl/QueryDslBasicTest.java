@@ -15,6 +15,8 @@ import study.querydsl.entity.QTeam;
 import study.querydsl.entity.Team;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 
 import java.util.List;
 
@@ -319,7 +321,7 @@ public class QueryDslBasicTest {
                 .select(QMember.member, QTeam.team)
                 .from(QMember.member)
                 .leftJoin(QMember.member.team, QTeam.team)
-                    .on(QTeam.team.name.eq("teamA"))
+                .on(QTeam.team.name.eq("teamA"))
                 .fetch();
 
         for (Tuple tuple : result) {
@@ -346,6 +348,43 @@ public class QueryDslBasicTest {
         for (Tuple tuple : result) {
             System.out.println("tuple = " + tuple);
         }
+    }
 
+    @PersistenceUnit
+    EntityManagerFactory emf;
+
+    /**
+     * 페치조인 미적용
+     */
+    @Test
+    void fetchJoinNo() throws Exception {
+        em.flush();
+        em.clear();
+
+        Member findMember = queryFactory
+                .selectFrom(QMember.member)
+                .where(QMember.member.username.eq("member1"))
+                .fetchOne();
+
+        boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+        assertFalse(loaded);
+    }
+
+    /**
+     * 페치조인 적용
+     */
+    @Test
+    void fetchJoin() throws Exception {
+        em.flush();
+        em.clear();
+
+        Member findMember = queryFactory
+                .selectFrom(QMember.member)
+                .join(QMember.member.team, QTeam.team).fetchJoin()
+                .where(QMember.member.username.eq("member1"))
+                .fetchOne();
+
+        boolean loaded = emf.getPersistenceUnitUtil().isLoaded(findMember.getTeam());
+        assertTrue(loaded);
     }
 }
