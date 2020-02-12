@@ -692,7 +692,34 @@ public class QueryDslBasicTest {
         return ageCond != null ? QMember.member.age.eq(ageCond) : null;
     }
 
+    @Test
+    void bulkUpdate() {
+        long count = queryFactory
+                .update(QMember.member)
+                .set(QMember.member.username, "비회원")
+                .where(QMember.member.age.lt(28))
+                .execute();
 
+        em.flush();
+        em.clear();
 
+        assertEquals(2, count);
+    }
+
+    @Test
+    void bulkAdd() {
+        long execute = queryFactory
+                .update(QMember.member)
+                .set(QMember.member.age, QMember.member.age.add(1))
+                .execute();
+    }
+
+    @Test
+    void bulkDelete() {
+        long execute = queryFactory
+                .delete(QMember.member)
+                .where(QMember.member.age.gt(18))
+                .execute();
+    }
 
 }
