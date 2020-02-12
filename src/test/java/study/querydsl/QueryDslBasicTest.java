@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
@@ -634,4 +635,29 @@ public class QueryDslBasicTest {
         }
     }
 
+    @Test
+    void dynamicQuery_BooleanBuilder() {
+        String usernameParam = "member1";
+        Integer ageParam = null;
+
+        List<Member> result = searchMember1(usernameParam, ageParam);
+        assertEquals(1, result.size());
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        if(usernameCond != null) {
+            builder.and(QMember.member.username.eq(usernameCond));
+        }
+
+        if(ageCond != null) {
+            builder.and(QMember.member.age.eq(ageCond));
+        }
+
+        return queryFactory
+                .selectFrom(QMember.member)
+                .where(builder)
+                .fetch();
+    }
 }
